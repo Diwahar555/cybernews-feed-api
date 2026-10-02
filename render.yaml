@@ -1,0 +1,45 @@
+databases:
+  - name: cybernews-db
+    databaseName: cybernews
+    user: cybernews
+
+services:
+  - type: web
+    name: cybernews-api
+    runtime: docker
+    rootDir: backend
+    preDeployCommand: alembic upgrade head
+    dockerCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT --workers 2 --proxy-headers --forwarded-allow-ips='*'
+    healthCheckPath: /api/v1/health/live
+    maxShutdownDelaySeconds: 30
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: cybernews-db
+          property: connectionString
+      - key: CORS_ORIGINS
+        sync: false
+      - key: TRUSTED_HOSTS
+        sync: false
+      - key: LOG_LEVEL
+        value: INFO
+
+  - type: worker
+    name: cybernews-worker
+    runtime: docker
+    rootDir: backend
+    dockerCommand: python -m app.worker
+    maxShutdownDelaySeconds: 30
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: cybernews-db
+          property: connectionString
+      - key: INGESTION_INTERVAL_MINUTES
+        value: 180
+      - key: LOG_LEVEL
+        value: INFO
