@@ -4,7 +4,7 @@ version = "1.0.0"
 description = "Production-oriented cybersecurity news aggregation API"
 requires-python = ">=3.12"
 dependencies = [
-  "fastapi>=0.142,<0.143",
+  "fastapi>=0.142,<0.144",
   "uvicorn[standard]>=0.34,<1",
   "sqlalchemy[asyncio]>=2.0.40,<3",
   "asyncpg>=0.30,<1",
